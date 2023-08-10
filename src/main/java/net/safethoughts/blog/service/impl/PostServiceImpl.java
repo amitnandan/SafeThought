@@ -6,12 +6,14 @@ import net.safethoughts.blog.payload.PostDto;
 import net.safethoughts.blog.payload.PostResponse;
 import net.safethoughts.blog.repository.PostRepository;
 import net.safethoughts.blog.service.PostService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.util.List;
@@ -23,10 +25,16 @@ public class PostServiceImpl implements PostService {
 
 
     private PostRepository postRepository;
+
+    private ModelMapper modelMapper;
+
     @Autowired
-    public PostServiceImpl(PostRepository postRepository) {
+    public PostServiceImpl(PostRepository postRepository , ModelMapper modelMapper)
+    {
         this.postRepository = postRepository;
+        this.modelMapper = modelMapper;
     }
+
 @Override
     public PostDto createPost(PostDto postDto) {
 
@@ -71,11 +79,12 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto getPostById(Long id) {
-       Optional<Post> post =  postRepository.findById(id);
-       if( !post.isPresent())
-           throw new ResourceNotFoundException("Post","Id",id);
+        Post post = postRepository.findById(id).orElseThrow(
+                ()->new ResourceNotFoundException(
+                        "POST","ID",id
+                ));
 
-       PostDto postDto = mapToDto(post.get());
+        PostDto postDto = mapToDto(post);
        return postDto;
 
     }
@@ -110,22 +119,27 @@ public class PostServiceImpl implements PostService {
 
 
     private PostDto mapToDto(Post post){
-        PostDto postDto = new PostDto();
-        postDto.setId(post.getId());
-        postDto.setTitle(post.getTitle());
-        postDto.setDescription(post.getDescription());
-        postDto.setContent(post.getContent());
+
+        PostDto postDto = modelMapper.map(post,PostDto.class);
+//        PostDto postDto = new PostDto();
+//
+//        postDto.setId(post.getId());
+//        postDto.setTitle(post.getTitle());
+//        postDto.setDescription(post.getDescription());
+//        postDto.setContent(post.getContent());
             return postDto;
     }
 
 
 
     private Post mapToEntity(PostDto postDto){
-        Post post = new Post();
-        //   post.setId(postDto.getId());
-        post.setTitle(postDto.getTitle());
-        post.setDescription(postDto.getDescription());
-        post.setContent(postDto.getContent());
+
+        Post post = modelMapper.map(postDto,Post.class);
+//        Post post = new Post();
+//        //   post.setId(postDto.getId());
+//        post.setTitle(postDto.getTitle());
+//        post.setDescription(postDto.getDescription());
+//        post.setContent(postDto.getContent());
         return post;
     }
 }

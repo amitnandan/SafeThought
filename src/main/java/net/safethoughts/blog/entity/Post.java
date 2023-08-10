@@ -2,12 +2,16 @@ package net.safethoughts.blog.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
-@Data
+//@Data
+
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(
@@ -34,4 +38,8 @@ public class Post {
 
     private String content ;
 
+    @OneToMany( mappedBy = "post",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<Comment> comments;
 }
