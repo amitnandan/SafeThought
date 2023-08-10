@@ -3,9 +3,14 @@ package net.safethoughts.blog.service.impl;
 import net.safethoughts.blog.entity.Post;
 import net.safethoughts.blog.exceptions.ResourceNotFoundException;
 import net.safethoughts.blog.payload.PostDto;
+import net.safethoughts.blog.payload.PostResponse;
 import net.safethoughts.blog.repository.PostRepository;
 import net.safethoughts.blog.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -34,13 +39,32 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPost() {
-        List<Post> listpost = postRepository.findAll();
+    public PostResponse getAllPost( int pageNo , int pageSize , String sortBy , String sortDir) {
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())?Sort.by(sortBy).ascending()
+                :Sort.by(sortBy).descending();
+
+        //Pageable pageable = PageRequest.of(pageNo,pageSize);
+        Pageable pageable = PageRequest.of(pageNo,pageSize, sort);
+        Page<Post> postsPageObject = postRepository.findAll(pageable);
+
+        //get content from page object
+
+        List<Post> listOfPosts = postsPageObject.getContent();
+
         List<PostDto> postDtoList =
-                listpost.stream()
+                listOfPosts.stream()
                 .map(post -> mapToDto(post))
                 .collect(Collectors.toList());
-        return postDtoList;
+
+        PostResponse postResponse = new PostResponse();
+        postResponse.setContent(postDtoList);
+        postResponse.setPageNo(postsPageObject.getNumber());
+        postResponse.setPageSize(postsPageObject.getSize());
+        postResponse.setTotalElements(postsPageObject.getTotalElements());
+        postResponse.setTotalPages(postsPageObject.getTotalPages());
+        postResponse.setLast(postsPageObject.isLast());
+        return postResponse;
 
 
     }
