@@ -26,7 +26,7 @@ public class PostController {
         this.postService = postService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping()
     public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto)
     {
@@ -60,7 +60,7 @@ public class PostController {
         return  new ResponseEntity<>(postService.getPostById(id),HttpStatus.FOUND);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<PostDto> updatePost( @Valid @RequestBody PostDto postDto ,
         @PathVariable("id") Long id)
@@ -69,7 +69,7 @@ public class PostController {
         return new ResponseEntity<>(postDto1,HttpStatus.ACCEPTED);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePost( @PathVariable("id")
                                       Long id

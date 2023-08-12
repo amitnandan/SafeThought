@@ -1,9 +1,12 @@
 package net.safethoughts.blog.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -19,6 +22,27 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableMethodSecurity
 //prequthorize, postauthorize ,prefilter and postfiler annotation
 public class SecurityConfig {
+
+    private UserDetailsService userDetailsService;
+
+    @Autowired
+    public SecurityConfig(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+
+
+    //this authentication manager uses the userDetailService internally to authenticate the
+    //details and uses the password Encoder to encode and decode the password
+    //don't need to provide it explicitly
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+
+
 
     @Bean
     public static PasswordEncoder passwordEncoder(){
@@ -38,31 +62,24 @@ public class SecurityConfig {
 
 
                     authorize.requestMatchers(HttpMethod.GET,"/api/**").permitAll()
+                            .requestMatchers("/api/auth/**").permitAll()
                             .anyRequest().authenticated();
-
-
-
-
-
-
-
-
                 })
                 .httpBasic(Customizer.withDefaults());
         return http.build();
     }
 
 
-    @Bean
-    public UserDetailsService userDetailsService(){
-        UserDetails amitNandan = User.builder().username("amit").password(passwordEncoder().encode("amit")).roles("USER")
-                .build();
-        UserDetails admin = User.builder().username("admin").password(passwordEncoder().encode("admin")).roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(amitNandan,admin);
-    }
-
+//    @Bean
+//    public UserDetailsService userDetailsService(){
+//        UserDetails amitNandan = User.builder().username("amit").password(passwordEncoder().encode("amit")).roles("USER")
+//                .build();
+//        UserDetails admin = User.builder().username("admin").password(passwordEncoder().encode("admin")).roles("ADMIN")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(amitNandan,admin);
+//    }
+//
 
 
 
