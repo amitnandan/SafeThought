@@ -7,6 +7,7 @@ import net.safethoughts.blog.payload.LoginDto;
 import net.safethoughts.blog.payload.RegisterDto;
 import net.safethoughts.blog.repository.RoleRepository;
 import net.safethoughts.blog.repository.UserRepository;
+import net.safethoughts.blog.security.JwtTokenProvider;
 import net.safethoughts.blog.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,11 +32,15 @@ public class AuthServiceImp implements AuthService {
 
     private PasswordEncoder passwordEncoder ;
 
-    public AuthServiceImp(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    private JwtTokenProvider jwtTokenProvider;
+
+
+    public AuthServiceImp(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -46,10 +51,14 @@ public class AuthServiceImp implements AuthService {
                loginDto.getPassword()
         ));
 
+
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return "USER LOGGED IN SUCCESSFULLY !";
+        String token = jwtTokenProvider.generateToken(authentication);
 
+        //return "USER LOGGED IN SUCCESSFULLY !";
+        return token;
 
         //return null;
 

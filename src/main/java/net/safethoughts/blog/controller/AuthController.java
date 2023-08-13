@@ -1,5 +1,7 @@
 package net.safethoughts.blog.controller;
 
+import net.safethoughts.blog.payload.JWTAuthResponse;
+//import net.safethoughts.blog.payload.JwtAuthResponse;
 import net.safethoughts.blog.payload.LoginDto;
 import net.safethoughts.blog.payload.RegisterDto;
 import net.safethoughts.blog.service.AuthService;
@@ -26,11 +28,33 @@ public class AuthController {
 //    @PostMapping(value = {"/login", "/signin"})
 
     //build login REST API - Sign IN rest api
-    @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto){
-        String response = authService.login(loginDto);
-        return ResponseEntity.ok(response);
+//    @PostMapping(value = {"/loginin" , "/signin"})
+//    public ResponseEntity<JwtAuthResponse> login(@RequestBody LoginDto loginDto){
+//        //String response = authService.login(loginDto);
+//
+//        String token = authService.login(loginDto);
+//
+//        JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
+//        jwtAuthResponse.setAccessToken(token);
+//
+//
+//        return ResponseEntity.ok(jwtAuthResponse);
+//    }
+
+
+    @PostMapping(value = {"/login", "/signin"})
+    public ResponseEntity<JWTAuthResponse> login(@RequestBody LoginDto loginDto){
+        String token = authService.login(loginDto);
+
+        JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
+        jwtAuthResponse.setAccessToken(token);
+
+        return ResponseEntity.ok(jwtAuthResponse);
     }
+
+
+
+
 
 //    @PostMapping(value = {"/login", "/signin"})
 //    public ResponseEntity<JWTAuthResponse> login(@RequestBody LoginDto loginDto){
@@ -49,5 +73,6 @@ public class AuthController {
         String response = authService.register(registerDto);
         return  new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
 
 }

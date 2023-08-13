@@ -42,4 +42,9 @@ public class Post {
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private Set<Comment> comments;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn( name = "category_id")
+    private Category category;
+
 }
